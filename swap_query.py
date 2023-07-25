@@ -66,7 +66,7 @@ def persist_swap_transactions(con, cur):
         VALUES (?,?,?,?,?,?,?,?,?,?,?,?);"""
 
         try:
-            cur.execute(insertQuery, (id, amountUSD, timestamp, wallet_address, token0_abbr,
+            cur.execute(insertQuery, (id, amountUSD, tx_timestamp, wallet_address, token0_abbr,
                         token0_name, amount0, token0_feesUSD, token1_abbr, token1_name, amount1, token1_feesUSD))
         except:
             pass
