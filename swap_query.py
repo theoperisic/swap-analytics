@@ -10,7 +10,7 @@ def persist_swap_transactions(con, cur):
     # CREATE TABLE swap_transactions (
     #     id TEXT NOT NULL UNIQUE,
     #     amountUSD REAL,
-    #     timestamp TIMESTAMP,
+    #     tx_timestamp TIMESTAMP,
     #     wallet_address TEXT,
     #     token0_abbr TEXT,
     #     token0_name TEXT,
@@ -49,7 +49,7 @@ def persist_swap_transactions(con, cur):
     for txn in response_json:
         id = txn['id']
         amountUSD = txn['amountUSD']
-        timestamp = txn['timestamp']
+        tx_timestamp = txn['timestamp']
         wallet_address = txn['origin']
 
         token0_abbr = txn['token0']['symbol']
@@ -62,7 +62,7 @@ def persist_swap_transactions(con, cur):
         amount1 = txn['amount1']
         token1_feesUSD = txn['token1']['feesUSD']
 
-        insertQuery = """Insert INTO swap_transactions (id, amountUSD, timestamp, wallet_address, token0_abbr, token0_name, amount0, token0_feesUSD, token1_abbr, token1_name, amount1, token1_feesUSD)
+        insertQuery = """Insert INTO swap_transactions (id, amountUSD, tx_timestamp, wallet_address, token0_abbr, token0_name, amount0, token0_feesUSD, token1_abbr, token1_name, amount1, token1_feesUSD)
         VALUES (?,?,?,?,?,?,?,?,?,?,?,?);"""
 
         try:
