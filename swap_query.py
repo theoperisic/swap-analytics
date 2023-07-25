@@ -71,11 +71,6 @@ def persist_swap_transactions(con, cur):
         except:
             pass
 
-    con.commit()
-    cur.close()
-    con.close()
-
-
 if __name__ == "__main__":
     db_name = 'swap_data.db'
 
@@ -83,3 +78,7 @@ if __name__ == "__main__":
     cur = con.cursor()
 
     persist_swap_transactions(con, cur)
+
+    con.commit()
+    cur.close()
+    con.close()
