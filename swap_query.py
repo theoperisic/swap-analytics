@@ -8,7 +8,7 @@ import time
 # Persisting transaction data
 def persist_swap_transactions(con, cur):
     # CREATE TABLE swap_transactions (
-    #     id TEXT,
+    #     id TEXT NOT NULL UNIQUE,
     #     amountUSD REAL,
     #     timestamp TIMESTAMP,
     #     wallet_address TEXT,
@@ -17,10 +17,9 @@ def persist_swap_transactions(con, cur):
     #     amount0 REAL,
     #     token0_feesUSD REAL,
     #     token1_abbr TEXT,
-    #     token1_name TEXT
+    #     token1_name TEXT,
     #     amount1 REAL,
-    #     token1_feesUSD REAL,
-    #     UNIQUE(id)
+    #     token1_feesUSD REAL
     # );
 
     query = """{
