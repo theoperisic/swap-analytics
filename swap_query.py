@@ -71,6 +71,58 @@ def persist_swap_transactions(con, cur):
         except:
             pass
 
+# Persisting token tvl data
+def persist_token_tvl(con, cur):
+    # CREATE TABLE token_tvl (
+    #     col_timestamp TIMESTAMP,
+    #     token_abbr TEXT,
+    #     token_name TEXT,
+    #     token_tvl REAL,
+    #     token_tvlUSD REAL,
+    #     UNIQUE(col_timestamp,token_abbr)
+    # );
+
+    query = """{
+    pools {
+        token0 {
+        name
+        totalValueLocked
+        totalValueLockedUSD
+        symbol
+        }
+        token1 {
+        name
+        totalValueLocked
+        totalValueLockedUSD
+        symbol
+        }
+    }
+    }"""
+
+    url = 'https://api.thegraph.com/subgraphs/name/nick8319/uniswap-v3-harmony'
+    r = requests.post(url, json={'query': query})
+    response_json = r.json()['data']['pools']
+
+    insertQuery = """Insert INTO token_tvl
+        VALUES (?,?,?,?,?);"""
+
+    for pool in response_json:
+        col_timestamp = time.time()
+        token_abbr = pool['token0']['symbol']
+        token_name = pool['token0']['name']
+        token_tvl = pool['token0']['totalValueLocked']
+        token_tvlUSD = pool['token0']['totalValueLockedUSD']
+
+        cur.execute(insertQuery, (col_timestamp,token_abbr,token_name,token_tvl,token_tvlUSD))
+
+        token_abbr = pool['token1']['symbol']
+        token_name = pool['token1']['name']
+        token_tvl = pool['token1']['totalValueLocked']
+        token_tvlUSD = pool['token1']['totalValueLockedUSD']
+
+        cur.execute(insertQuery, (col_timestamp,token_abbr,token_name,token_tvl,token_tvlUSD))
+
+
 if __name__ == "__main__":
     db_name = 'swap_data.db'
 
@@ -78,6 +130,7 @@ if __name__ == "__main__":
     cur = con.cursor()
 
     persist_swap_transactions(con, cur)
+    persist_token_tvl(con,cur)
 
     con.commit()
     cur.close()
