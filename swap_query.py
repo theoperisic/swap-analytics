@@ -123,7 +123,6 @@ def persist_token_tvl(con, cur):
         cur.execute(insertQuery, (col_timestamp,token_abbr,token_name,token_tvl,token_tvlUSD))
 
 # Persisting total tvl usd data
-
 def persist_total_tvlUSD(con, cur):
     # CREATE TABLE total_tvlUSD (
     #     col_timestamp TIMESTAMP,
@@ -150,6 +149,33 @@ def persist_total_tvlUSD(con, cur):
 
         cur.execute(insertQuery, (col_timestamp, total_tvlUSD))
 
+# Persisting total fees data
+def persist_total_feesUSD(con, cur):
+    # CREATE TABLE total_feesUSD (
+    #     col_timestamp TIMESTAMP,
+    #     total_feesUSD REAL,
+    #     UNIQUE(col_timestamp,total_feesUSD)
+    # );
+
+    query = """{
+    factories {
+    totalFeesUSD
+    }
+    }"""
+
+    url = 'https://api.thegraph.com/subgraphs/name/nick8319/uniswap-v3-harmony'
+    r = requests.post(url, json={'query': query})
+    response_json = r.json()['data']['factories']
+
+    insertQuery = """Insert INTO total_feesUSD
+        VALUES (?,?);"""
+
+    for factories in response_json:
+        col_timestamp = time.time()
+        total_feesUSD = factories['totalFeesUSD']
+
+        cur.execute(insertQuery, (col_timestamp, total_feesUSD))
+
 
 if __name__ == "__main__":
     db_name = 'swap_data.db'
@@ -160,6 +186,7 @@ if __name__ == "__main__":
     persist_swap_transactions(con, cur)
     persist_token_tvl(con,cur)
     persist_total_tvlUSD(con,cur)
+    persist_total_feesUSD(con,cur)
 
     con.commit()
     cur.close()
