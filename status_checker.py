@@ -33,26 +33,32 @@ def check_site_status(con, cur, url, max_retries=3):
         ping_resp = str(e)
 
     while retry <= max_retries:
-        try:
-            response = requests.get(url)
-            response_code = response.status_code
-            response_time = response.elapsed.total_seconds()
-            
-            insertQuery = """Insert INTO swap_status (check_datetime, url, response_code, response_time, socket_ip, socket_log, ping_resp)
-            VALUES (?,?,?,?,?,?,?);"""
-
-            cur.execute(insertQuery, (time.time(), url, response_code, response_time, socket_ip, socket_log, ping_resp))
-
-            break
-        except requests.exceptions.RequestException as e:
-            retry += 1
-            if retry <= max_retries:
-                insertQuery = """Insert INTO swap_status (check_datetime, url, response_code, req_log, socket_ip, socket_log, ping_resp)
+        if '://' in url:
+            try:
+                response = requests.get(url)
+                response_code = response.status_code
+                response_time = response.elapsed.total_seconds()
+                
+                insertQuery = """Insert INTO swap_status (check_datetime, url, response_code, response_time, socket_ip, socket_log, ping_resp)
                 VALUES (?,?,?,?,?,?,?);"""
-                cur.execute(insertQuery, (time.time(), url, 99999, str(e), socket_ip, socket_log, ping_resp))
-                time.sleep(2**retry)
-            else:
+
+                cur.execute(insertQuery, (time.time(), url, response_code, response_time, socket_ip, socket_log, ping_resp))
+
                 break
+            except requests.exceptions.RequestException as e:
+                retry += 1
+                if retry <= max_retries:
+                    insertQuery = """Insert INTO swap_status (check_datetime, url, response_code, req_log, socket_ip, socket_log, ping_resp)
+                    VALUES (?,?,?,?,?,?,?);"""
+                    cur.execute(insertQuery, (time.time(), url, 99999, str(e), socket_ip, socket_log, ping_resp))
+                    time.sleep(2**retry)
+                else:
+                    break
+        else:
+            insertQuery = """Insert INTO swap_status (check_datetime, url, socket_ip, socket_log, ping_resp)
+                    VALUES (?,?,?,?,?);"""
+            cur.execute(insertQuery, (time.time(), url, socket_ip, socket_log, ping_resp))
+            break
             
 
 if __name__ == "__main__":
